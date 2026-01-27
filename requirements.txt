@@ -1,0 +1,10 @@
+langchain
+langchain_groq
+langchain_core
+
+python-dotenv
+pinecone
+openai
+
+flask
+flask-cors

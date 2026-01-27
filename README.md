@@ -204,17 +204,3 @@ Contributions and improvements are welcome. Follow these steps:
 Please keep secrets and API keys out of PRs.
 
 ---
-
-## License & Contact
-
-- License: Add appropriate license file (e.g., MIT) if desired.
-- Contact: Yugesh Karan (owner): yugeshkaran01@gmail.com
-
----
-
-If you want, I can:
-- produce a shorter README (one-page summary), or
-- generate an OpenAPI or Postman collection for the API surface (based on `app.py`), or
-- open a draft README.md PR for you with this content.
-
-```

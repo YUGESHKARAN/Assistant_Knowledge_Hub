@@ -1,236 +1,252 @@
-# Tech Community Assistant (RAG-based AI Assistant)
+# Tech Community Assistant — Production-grade RAG Assistant
 
-A production-grade AI assistant built for a technical community learning platform. This repository implements a Retrieval-Augmented Generation (RAG) architecture with two core pipelines:
+A production-grade AI assistant built for a technical community learning platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines:
 
-- Ingestion pipeline: receives posts/content, converts them into vector embeddings using OpenAI's `text-embedding-3-small` model (dimension: 521), and stores the embeddings with metadata in Pinecone.
-- Query pipeline: converts user questions into embeddings, performs similarity search against the Pinecone index to retrieve top-k context chunks, then uses the retrieved context + role-specified prompts to generate a structured JSON response from an LLM.
+- Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 521), and stores vectors + metadata in a Pinecone index.
+- Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate a JSON response via an LLM.
 
-This README documents architecture, environment variables, running locally, API examples, and operational recommendations.
+This repository contains the core utilities for embedding, Pinecone integration, ingestion, retrieval, prompt templates and a minimal app interface.
 
-## Table of contents
-- [Architecture](#architecture)
-- [Repository layout](#repository-layout)
-- [Getting started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Environment variables](#environment-variables)
-  - [Install](#install)
-  - [Run locally](#run-locally)
-- [Pipelines](#pipelines)
-  - [Ingestion pipeline](#ingestion-pipeline)
-  - [Query pipeline](#query-pipeline)
-- [API examples](#api-examples)
-- [Embedding & index details](#embedding--index-details)
-- [Prompting & response schema](#prompting--response-schema)
-- [Production considerations](#production-considerations)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+Contents
+- Brief overview (quickstart)
+- Detailed architecture & flow
+- Running locally (install, env, commands)
+- Pipelines (ingest & query) — implementation notes
+- Request / response schema & examples
+- Production notes, observability & security
+- Contributing & license
 
-## Architecture
-- Client -> API (Flask/FastAPI or similar - check `app.py`)  
-- Ingestion: `ingestion.py` -> embed text with OpenAI -> store in Pinecone via `pinecone_client.py`  
-- Retrieval: `retrieval.py` / `retrieval pipeline` -> embed user query -> similarity search in Pinecone -> assemble top-k chunks -> call LLM with role prompts from `prompt.py` -> JSON response  
-- Utilities: configuration, schema, and embedding helpers in `utility/` (see layout below).
+---
 
-## Repository layout
-Based on the project files:
-- utility/
-  - config.py — configuration and environment helpers
-  - prompt.py — prompt templates and role-based prompts
-  - schema.py — data schemas for ingestion and responses
-  - embeder.py (or embedder.py) — wrapper around OpenAI embeddings
-  - ingestion.py — ingestion pipeline implementation
-  - pinecone_client.py — Pinecone client and index helpers
-  - retrieval.py — retrieval / query pipeline
-  - app.py — API server (endpoints for ingest/query)
-  - requirements.txt
-  - .env — local environment variables (not committed)
-- .gitignore
+## Brief (Quickstart)
 
-Adjust filenames above if your repository uses slightly different names (e.g., `embedder.py` vs `embeder.py`).
+1. Create a `.env` file with your OpenAI and Pinecone credentials (see “Environment variables”).
+2. Install dependencies:
+   - pip install -r utility/requirements.txt
+3. Start the app or run the scripts:
+   - Check `app.py` for HTTP endpoints (ingest / query) or run `utility/ingestion.py` to ingest data and `utility/retrieval.py` to test queries.
+4. Ingestion converts posts into 521-dimensional vectors using `text-embedding-3-small` and stores them in Pinecone along with metadata.
+5. Querying converts the question to an embedding, does a top-k similarity search in Pinecone, retrieves chunks, and asks the LLM to generate a JSON response with content, suggested posts, and suggestions.
 
-## Getting started
+---
 
-### Prerequisites
-- Python 3.9+
-- An OpenAI API key (with access to `text-embedding-3-small` and the LLM model you use)
-- A Pinecone account, API key, environment and an index created (vector dimension 521)
-- (Optional) Virtualenv or poetry for dependency isolation
+## Architecture & Data Flow (Detailed)
 
-### Environment variables
-Create a `.env` file in the project root or set these in your environment:
+1. Data Ingestion
+   - Source: community posts (title, body, images, links, author, category, postId, profile, etc.).
+   - Text is chunked / normalized (see `schema.py` / `prompt.py` for structure).
+   - Embedding: `utility/embedder.py` calls OpenAI’s `text-embedding-3-small` (embedding dim = 521).
+   - Storage: `utility/pinecone_client.py` upserts embeddings with metadata into a Pinecone index (index config and namespace are set via env vars).
 
-- OPENAI_API_KEY — OpenAI API key
-- OPENAI_API_BASE — (optional, if using a custom OpenAI endpoint)
-- PINECONE_API_KEY — Pinecone API key
-- PINECONE_ENVIRONMENT — Pinecone environment/region
-- PINECONE_INDEX_NAME — The index name used for storing vectors
-- EMBEDDING_MODEL — e.g., `text-embedding-3-small` (default)
-- EMBEDDING_DIM — `521` (important: index must match this)
-- LLM_MODEL — the LLM model used for generation (e.g., `gpt-4o-mini` or other)
-- SERVICE_ROLE or ROLE_NAME — (optional) if you use role-based prompting logic
+2. Query / Retrieval
+   - Input: user question (and optional `current_post_id` or other filters).
+   - Query embedding: same `text-embedding-3-small`.
+   - Similarity search: Pinecone similarity search returns top-k matching chunks.
+   - LLM prompt: Constructed using retrieved context + role and templates in `utility/prompt.py`.
+   - LLM response: LLM generates a structured JSON (see schema below). The response is returned to the user.
 
-Example `.env`:
-```
-OPENAI_API_KEY=sk-...
-PINECONE_API_KEY=pc-...
-PINECONE_ENVIRONMENT=us-west1-gcp
-PINECONE_INDEX_NAME=tech-community-index
-EMBEDDING_MODEL=text-embedding-3-small
-EMBEDDING_DIM=521
-LLM_MODEL=gpt-4o-mini
-```
+ASCII overview:
 
-### Install
-Create a virtual environment and install dependencies:
+User Post(s) --> Ingestion (chunk -> embed -> Pinecone) <---> Pinecone Index
+                                                          ^
+                                                          |
+User Query --> Embed --> Pinecone similarity search --> Retrieve top-k chunks --> Build prompt (context + role) --> LLM -> JSON response
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r utility/requirements.txt
-```
+---
 
-(Adjust path if `requirements.txt` is in project root.)
+## Environment variables
 
-### Run locally
-Start the API server (example, adjust if you use FastAPI or Flask):
+Create a `.env` file with at least the following keys:
 
-```bash
-python utility/app.py
-```
+- OPENAI_API_KEY=your_openai_key
+- OPENAI_EMBED_MODEL=text-embedding-3-small
+- EMBEDDING_DIM=521
+- PINECONE_API_KEY=your_pinecone_key
+- PINECONE_ENV=your-pinecone-environment (e.g., us-west1-gcp)
+- PINECONE_INDEX=your_index_name
+- PINECONE_NAMESPACE=optional_namespace
+- OPTIONAL: OPENAI_API_BASE, OPENAI_API_TYPE, etc. if using a proxy/enterprise deployment
 
-Check `app.py` for the actual entrypoint and any CLI flags.
+Note: The repo includes a `.env` template place; inspect `utility/config.py` for exact environment variable names expected by the code.
 
-## Pipelines
+---
 
-### Ingestion pipeline
-High-level steps:
-1. Receive content (e.g., post body, title, author, url, created_at).
-2. Preprocess and chunk text (if needed).
-3. Use OpenAI embeddings: `text-embedding-3-small` to create vector embedding (dim 521).
-4. Store vectors in Pinecone index with metadata: e.g., `source`, `title`, `author`, `created_at`, `chunk_id`, `doc_id`, and any tags.
+## Install & Run
 
-Recommended metadata keys:
-- source (string)
-- doc_id (string)
-- chunk_id (string)
-- title (string)
-- author (string)
-- created_at (ISO timestamp)
-- url (optional)
-- lang (optional)
+1. Clone the repository:
+   ```
+   git clone https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub.git
+   cd Assistant_Knowledge_Hub
+   ```
 
-Batch writes for higher throughput and lower cost. Ensure your Pinecone index vector dimension equals `EMBEDDING_DIM=521`.
+2. Install dependencies:
+   ```
+   pip install -r utility/requirements.txt
+   ```
 
-### Query pipeline
-High-level steps:
-1. Receive user question and optional role/context settings.
-2. Convert question into embedding using same embedding model.
-3. Query Pinecone for top-k similar vectors (e.g., k=5 or k=10).
-4. Aggregate the retrieved chunks into a context prompt.
-5. Use role-specific prompt templates from `prompt.py` to instruct the LLM to respond in JSON format.
-6. Return the LLM-generated JSON response to the caller.
+3. Configure `.env` (at repo root or as expected by the code). Example:
+   ```
+   OPENAI_API_KEY=sk-...
+   PINECONE_API_KEY=pc-...
+   PINECONE_ENV=us-west1-gcp
+   PINECONE_INDEX=assistant-index
+   PINECONE_NAMESPACE=community
+   OPENAI_EMBED_MODEL=text-embedding-3-small
+   EMBEDDING_DIM=521
+   ```
 
-Use retrieval-augmented prompts that include explicit instructions about output schema to keep responses structured.
+4. Ingest data (example):
+   - There is a script `utility/ingestion.py` which performs ingestion; run it to index posts:
+     ```
+     python utility/ingestion.py
+     ```
+   - The script will read posts (from your source), embed them with `utility/embedder.py` and upsert into Pinecone via `utility/pinecone_client.py`.
 
-## API examples
+5. Query / Run server:
+   - `app.py` exposes a minimal HTTP interface. Inspect `app.py` for routes. Typical flow:
+     - POST /query  (body: {"query": "...", "current_post_id": "..."})
+     - POST /ingest (to ingest individual posts via HTTP) — if implemented
+   - Example (assumes a `/query` endpoint — confirm by reading `app.py`):
+     ```
+     curl -X POST http://localhost:8000/query \
+       -H "Content-Type: application/json" \
+       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5"}'
+     ```
 
-Below are suggested endpoints. Confirm names in `app.py` and update if different.
+---
 
-- POST /ingest
-  - Request JSON (example):
-    ```json
+## Important files / modules
+
+- utility/config.py — environment & configuration
+- utility/embedder.py — OpenAI embedding calls
+- utility/pinecone_client.py — Pinecone index client, upsert, query helpers
+- utility/ingestion.py — ingestion pipeline runner
+- utility/retrieval.py — query pipeline, retrieval + LLM prompting flow
+- utility/prompt.py — prompt templates and role-based prompt builders
+- utility/schema.py — expected data schema and types
+- app.py — application entry / HTTP API handlers
+- requirements: utility/requirements.txt
+
+---
+
+## Request / Response Schema
+
+The system produces a JSON response designed for clients that render posts, suggestions, and optional videos. Example response:
+
+Example (sample response produced by the LLM):
+```json
+{
+  "content": "## Evaluating LLMs using LangSmith\n\nJust wrapped up a comprehensive evaluation ...",
+  "posts": [
     {
-      "doc_id": "post-123",
-      "title": "How to use the new router",
-      "author": "alice",
-      "content": "Full post text...",
-      "created_at": "2026-01-10T10:00:00Z",
-      "url": "https://community.example/posts/123"
-    }
-    ```
-  - Response: status, inserted vector ids, or an ingestion job id.
-
-- POST /query
-  - Request JSON (example):
-    ```json
-    {
-      "question": "How do I set up the router middleware?",
-      "top_k": 5,
-      "role": "mentor"
-    }
-    ```
-  - Response: JSON produced by the LLM. Example structure:
-    ```json
-    {
-      "answer": "Step-by-step guidance ...",
-      "sources": [
-        {"doc_id": "post-123", "chunk_id": "c1", "score": 0.92},
-        {"doc_id": "post-98", "chunk_id": "c2", "score": 0.87}
+      "authorEmail": "yugeshkaran01@gmail.com",
+      "authorName": "Yugesh Karan",
+      "category": "GenAI",
+      "image": "IMG-20250317-WA0008.jpg",
+      "links": [
+        {"title":"new links 2: test h", "url":"new links 2: test h"},
+        {"title":"YouTube: https://youtu.be/_ZvnD73m40o?si=6pbeG2cBhblMB89M", "url":"https://youtu.be/_ZvnD73m40o?si=6pbeG2cBhblMB89M"},
+        {"title":"YouTube: https://youtu.be/ScKCy2udln8?si=fSc5H1dJy8xGrwSR", "url":"https://youtu.be/ScKCy2udln8?si=fSc5H1dJy8xGrwSR"}
       ],
-      "metadata": {
-        "model": "gpt-4o-mini",
-        "embedding_model": "text-embedding-3-small"
-      }
+      "postId": "67d83a9be0acac6d68d558cf",
+      "profile": "4264684b-2286-4ff5-8f43-da163fb980d7-blog9.jpg",
+      "title": "Prompt template structure"
     }
-    ```
-
-Curl example (replace host and port):
-```bash
-curl -X POST "http://localhost:8000/query" \
-  -H "Content-Type: application/json" \
-  -d '{"question":"What is RAG and how is it used here?","top_k":5}'
+  ],
+  "suggestions": [
+    "How to evaluate LLMs in real-world applications?",
+    "What are the key components of a RAG system?",
+    "How does LangSmith enhance LLM performance?"
+  ],
+  "type": "post_suggestions",
+  "videos": null
+}
 ```
 
-## Embedding & index details
-- Embedding model: text-embedding-3-small
-- Vector dimension: 521 (IMPORTANT: Pinecone index must be created with this dimension)
-- Similarity metric: cosine (recommended), or dot-product depending on tuning
-- Upsert in batches (e.g., 100–1000 vectors per request depending on payload size)
-- Keep consistent normalization/use of the same embedding model for ingestion and queries
+Field explanations:
+- content: Markdown-formatted summary or explanation generated by the LLM.
+- posts: Array of suggested or related posts (each contains metadata such as title, author, postId, images, links).
+- suggestions: short follow-up questions/ideas for posts or further reading.
+- type: high-level response classification (e.g., "post_suggestions").
+- videos: optional video list or null.
 
-## Prompting & response schema
-- Use `prompt.py` to centralize role-specific templates and output-schema enforcement.
-- Prefer few-shot examples in prompts to make LLM responses consistent and JSON-valid.
-- Always instruct the LLM to respond with strict JSON (no extra commentary) so downstream systems can parse reliably.
+---
 
-Suggested prompt pattern:
-- System instruction: role & behavior (e.g., "You are a concise mentor for developers. Output only JSON matching schema X.")
-- Context: concatenated retrieved chunks (clearly labeled and trimmed to token limits)
-- User instruction: the question and required response format (fields, types)
+## Example Query Input
 
-## Production considerations
-- Rate limiting and retries for OpenAI and Pinecone API calls
-- Caching frequent queries / responses
-- Monitor embedding and similarity drift after model updates
-- Secure your keys using secret manager (do not store in repo)
-- Ensure the Pinecone index dimension matches embedding output (mismatches will cause errors)
-- Use incremental ingestion with idempotency (upsert by doc_id + chunk_id)
-- Audit logs for queries and responses for moderation and analytics
-- Token / prompt length constraints — truncate or prioritize retrieved chunks to fit the LLM context window
-- Consider using a batching/worker queue for ingestion (Celery / RQ / background worker)
-- Implement content moderation / safe-filtering if user-supplied content may be harmful
+A typical query payload:
+```json
+{
+  "query": "summarize it, suggest post content",
+  "current_post_id": "689c1079f0093cfba6c981d5"
+}
+```
+This instructs the system to summarize the content related to `current_post_id` and propose suggested posts or content ideas.
+
+---
+
+## Implementation Notes & Best Practices
+
+- Embedding model: `text-embedding-3-small` — ensure you use the same encoder for both ingestion and querying to keep vector spaces consistent.
+- Embedding dimension: 521. When creating Pinecone index, make sure the vector dimension is set accordingly.
+- Upsert metadata: store `postId`, `authorEmail`, `authorName`, `category`, `title`, `url`/`links`, chunk id / offset. Metadata ensures you can rehydrate results into structured post objects.
+- Top-k retrieval: tune `k` (default often between 3–10) depending on chunk size and retrieval quality.
+- Prompting: combine retrieved chunks with system & role prompts (see `utility/prompt.py`). Keep prompts deterministic and include instructions for JSON-only output if you want strict machine-parsable results.
+- Chunking & overlap: choose chunk size & overlap to balance context quality vs. retrieval noise.
+- Pinecone namespaces: use namespaces to separate environments or tenants.
+
+---
+
+## Production Considerations
+
+- Rate limits & batching: batch embeddings to reduce API round-trips; handle OpenAI and Pinecone rate-limits.
+- Cost monitoring: embeddings incur cost — monitor usage by counting tokens/requests.
+- Vector index lifecycle: consider retention and reindexing strategies for updated posts.
+- Caching: cache frequently asked queries or LLM responses where appropriate.
+- Security: never commit secrets. Use environment variables or secret stores. Limit access to Pinecone and OpenAI keys.
+- Observability: log retrieval scores, top-k ids, prompt sent to LLM (or a hashed version) for traceability. Add latency metrics for embeddings, Pinecone calls, and LLM calls.
+- Testing & Evaluation: implement quality checks (e.g., ground-truth tests or human-in-the-loop review) to validate generated suggestions.
+
+---
 
 ## Troubleshooting
-- "Dimension mismatch" errors: Verify `EMBEDDING_DIM` and Pinecone index dimension are the same.
-- Empty or poor results: increase top_k, check embedding model is the same for queries and ingestion, and inspect metadata stored with vectors.
-- API key errors: confirm env vars and network egress to OpenAI and Pinecone endpoints.
-- Cost: embedding every token is expensive—use chunking, deduplication, and selective ingestion.
+
+- Mismatch embedding dim error in Pinecone: make sure the Pinecone index dimension matches EMBEDDING_DIM (521).
+- No results returned: check namespace, index name, and that ingestion succeeded (inspect `pinecone_client.py` upsert logs).
+- JSON parse errors from LLM: enforce stricter prompt instructions and consider sampling/temperature settings that favor deterministic outputs (e.g., temperature=0).
+
+---
+
+## Extending / Customization
+
+- Swap LLM or embedding models: update `utility/embedder.py` and prompt temperature/parameters.
+- Multiple indices or hybrid search: support separate indices per category or add metadata filtering in Pinecone queries.
+- Add more output types: e.g., direct “tweetable summary”, long-form blog post, slides, or code snippets.
+
+---
 
 ## Contributing
-Contributions are welcome. Please:
-1. Open an issue describing the change or problem.
-2. Create a feature branch.
-3. Submit a pull request with tests and documentation updates.
 
-## License
-Add your preferred license here (e.g., MIT). If you don't have one yet, consider `MIT` for permissive use.
+Contributions and improvements are welcome. Follow these steps:
+1. Fork the repo
+2. Create a new branch (feature/your-change)
+3. Run tests (if present) and linters
+4. Open a PR with a clear description of changes
+
+Please keep secrets and API keys out of PRs.
+
+---
+
+## License & Contact
+
+- License: Add appropriate license file (e.g., MIT) if desired.
+- Contact: Yugesh Karan (owner): yugeshkaran01@gmail.com
 
 ---
 
 If you want, I can:
-- open a PR adding this README to the repo,
-- tailor the README to exactly match the endpoints and field names found in `app.py` and other files (I can read those files next),
-- add a deployment section with an example Dockerfile and Kubernetes manifest.
+- produce a shorter README (one-page summary), or
+- generate an OpenAPI or Postman collection for the API surface (based on `app.py`), or
+- open a draft README.md PR for you with this content.
 
-Tell me which you'd like me to do next.
+```

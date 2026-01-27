@@ -9,7 +9,7 @@ from utility.config import GROQ_API_KEY, LLM_MODEL
 from utility.schema import AIResponse
 from langchain_core.output_parsers import PydanticOutputParser
 
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
 
 parser = PydanticOutputParser(pydantic_object=AIResponse)
 format_instructions = parser.get_format_instructions()

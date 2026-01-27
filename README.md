@@ -88,8 +88,6 @@ Note: The repo includes a `.env` template place; inspect `utility/config.py` for
    OPENAI_API_KEY=sk-...
    PINECONE_API_KEY=pc-...
    PINECONE_INDEX=assistant-index
-   OPENAI_EMBED_MODEL=text-embedding-3-small
-   EMBEDDING_DIM=521
    ```
 
 4. Ingest data (example):
@@ -122,6 +120,18 @@ Note: The repo includes a `.env` template place; inspect `utility/config.py` for
 - retrieval.py — query pipeline, retrieval + LLM prompting flow
 - app.py — application entry / HTTP API handlers
 - requirements: requirements.txt
+
+---
+## Example Query Input
+
+A typical query payload:
+```json
+{
+  "query": "summarize it, suggest post content",
+  "current_post_id": "689c1079f0093cfba6c981d5"
+}
+```
+This instructs the system to summarize the content related to `current_post_id` and propose suggested posts or content ideas.
 
 ---
 
@@ -168,18 +178,7 @@ Field explanations:
 
 ---
 
-## Example Query Input
 
-A typical query payload:
-```json
-{
-  "query": "summarize it, suggest post content",
-  "current_post_id": "689c1079f0093cfba6c981d5"
-}
-```
-This instructs the system to summarize the content related to `current_post_id` and propose suggested posts or content ideas.
-
----
 
 ## Implementation Notes & Best Practices
 

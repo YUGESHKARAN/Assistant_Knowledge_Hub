@@ -20,16 +20,42 @@ load_dotenv()
 llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 # llm = ChatOpenAI(model_name="gpt-4")
 
-def retrieve(query: str, top_k=5):
+# def retrieve(query: str,current_post_id:str, top_k=3):
+#     embedding = generate_embedding(query)
+
+#     res = index.query(
+#         vector=embedding,
+#         top_k=top_k,
+#         include_metadata=True,
+#         filter={"postId": {"$eq": current_post_id}},
+#     )
+
+#     return [match["metadata"] for match in res["matches"]]
+
+def retrieve(query: str, current_post_id: str, top_k=5):
     embedding = generate_embedding(query)
 
+    # 1. Semantic search
     res = index.query(
         vector=embedding,
         top_k=top_k,
         include_metadata=True
     )
 
-    return [match["metadata"] for match in res["matches"]]
+    docs = [match["metadata"] | {"_id": match["id"]} for match in res["matches"]]
+
+    # 2. Always fetch current post explicitly
+    current = index.fetch(ids=[current_post_id])
+
+    if current and current["vectors"]:
+        current_doc = current["vectors"][current_post_id]["metadata"]
+        current_doc["_id"] = current_post_id
+
+        # Inject current post if missing
+        if current_post_id not in [d["_id"] for d in docs]:
+            docs.insert(0, current_doc)
+
+    return docs
 
 def detect_youtube_links(posts):
     videos = []
@@ -44,7 +70,7 @@ def detect_youtube_links(posts):
     return videos
 
 def ask_ai(query: str, current_post_id: str) :
-    docs = retrieve(query)
+    docs = retrieve(query,current_post_id)
     print("Retrieved docs:", docs)
 
     rag_context = ""

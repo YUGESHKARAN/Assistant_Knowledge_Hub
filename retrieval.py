@@ -45,8 +45,10 @@ def detect_youtube_links(posts):
 
 def ask_ai(query: str, current_post_id: str) :
     docs = retrieve(query)
+    print("Retrieved docs:", docs)
 
     rag_context = ""
+    
     for d in docs:
         rag_context += f"""
         Title: {d['title']}
@@ -154,6 +156,7 @@ DATA:
 Current Post ID:
 {current_post_id}
 
+
 RAG Context (array of posts with fields like title, description, _id, links, etc):
 {rag_context}
 
@@ -170,8 +173,9 @@ User Query:
         "current_post_id": current_post_id,
         "format_instructions": format_instructions
     })
-    print()
-    print("rag_context:", rag_context)
-    print()
+
+    print("current_post_id:", current_post_id)
+
+    
 
     return response.dict()

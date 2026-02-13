@@ -14,8 +14,8 @@ MAX_QUERY_LENGTH = os.getenv('MAX_QUERY_LENGTH')
 
 
 CORS(app, resources={
-    r"/ask": {"origins": [frontend_url]},
-    r"/ingest": {"origins": [frontend_url]}
+    r"/ask": {"origins": [frontend_url,"http://localhost:5173"]},
+    r"/ingest": {"origins": [frontend_url,"http://localhost:5173"]}
 })
 
 @app.route("/ingest", methods=["POST"])
@@ -71,6 +71,7 @@ def ask():
     return jsonify(result)
 
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)

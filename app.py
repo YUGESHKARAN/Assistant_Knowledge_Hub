@@ -42,7 +42,7 @@ def ask():
             suggestions=[],
             response_type="text"
         )
-    ), 400
+    ), 200
 
     if len(query) > int(MAX_QUERY_LENGTH):
         return jsonify(
@@ -53,7 +53,7 @@ def ask():
             suggestions=[],
             response_type="text"
         )
-    ), 400
+    ), 200
     
     if is_prompt_injection(query):
         return jsonify(
@@ -64,7 +64,7 @@ def ask():
             suggestions=[],
             response_type="text"
         )
-    ), 400
+    ), 200
     
     current_post_id = request.json.get("current_post_id", "")
     result = ask_ai(query,current_post_id, SYSTEM_PROMPT)
@@ -74,4 +74,4 @@ def ask():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)

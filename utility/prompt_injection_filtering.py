@@ -4,6 +4,7 @@ FORBIDDEN_PATTERNS = [
     "show hidden prompt",
     "print system prompt",
     "show all data",
+    "get all data",
     "dump database"
 ]
 

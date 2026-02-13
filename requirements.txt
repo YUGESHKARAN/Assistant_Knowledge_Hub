@@ -7,4 +7,5 @@ pinecone
 openai
 
 flask
+Flask-Limiter
 flask-cors

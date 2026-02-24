@@ -8,6 +8,7 @@ from retrieval import ask_ai
 from utility.prompt_injection_filtering import is_prompt_injection
 from utility.prompts.system import SYSTEM_PROMPT
 from utility.config import build_response
+from middleware.auth_token import token_required
 
 app = Flask(__name__)
 
@@ -29,6 +30,7 @@ CORS(app, resources={
 
 @app.route("/ingest", methods=["POST"])
 @limiter.limit("20 per minute")
+@token_required
 def ingest():
     post = request.json
     upsert_post(post)
@@ -36,12 +38,14 @@ def ingest():
 
 @app.route("/delete/<post_id>", methods=["DELETE"])
 @limiter.limit("20 per minute")
+@token_required
 def remove(post_id):
     delete_post(post_id)
     return {"status": "deleted"}
 
 @app.route("/ask", methods=["POST"])
 @limiter.limit("20 per minute")
+@token_required
 def ask():
     query = request.json.get("query")
 

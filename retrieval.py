@@ -70,7 +70,7 @@ def detect_youtube_links(posts):
 
 def ask_ai(query: str, current_post_id: str, SYSTEM_PROMPT:str) :
     docs = retrieve(query,current_post_id)
-    print("Retrieved docs:", docs)
+    # print("Retrieved docs:", docs)
      
     rag_context = ""
     

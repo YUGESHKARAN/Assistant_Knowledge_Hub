@@ -1,2 +1,4 @@
 .env
 tech_comm_assistant
+locustfile.py
+__pycache__

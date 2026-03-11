@@ -48,6 +48,7 @@ def remove(post_id):
 @token_required
 def ask():
     query = request.json.get("query")
+    category = request.json.get("category", "")
 
     if not query:
        return jsonify(
@@ -83,11 +84,11 @@ def ask():
     ), 400
     
     current_post_id = request.json.get("current_post_id", "")
-    result = ask_ai(query,current_post_id, SYSTEM_PROMPT)
+    result = ask_ai(query,current_post_id, category, SYSTEM_PROMPT)
     return jsonify(result), 200
 
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)

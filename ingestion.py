@@ -2,7 +2,7 @@ from pinecone_client import index
 from embedder import generate_embedding
 
 FIELDS = ["title", "image", "description", "category",
-          "_id", "links", "documents", "authorName", "profile", "authoremail"]
+          "_id", "links", "documents", "authorName", "profile", "authorEmail"]
 
 def build_text(post):
     """
@@ -40,7 +40,7 @@ def clean_metadata(post):
         "_id": post.get("_id", ""),
         "authorName": post.get("authorName", ""),
         "profile": post.get("profile", ""),
-        "authoremail": post.get("authoremail", ""),
+        "authoremail": post.get("authorEmail", ""),
 
         # Flatten links (Pinecone-compatible)
         "links": [

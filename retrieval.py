@@ -31,14 +31,48 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
 #     return [match["metadata"] for match in res["matches"]]
 
-def retrieve(query: str, current_post_id: str, top_k=5):
+# def retrieve(query: str, current_post_id: str, category:str, top_k=5):
+#     embedding = generate_embedding(query)
+
+#     # 1. Semantic search
+#     res = index.query(
+#         vector=embedding,
+#         top_k=top_k,
+#         include_metadata=True
+#     )
+
+#     docs = [match["metadata"] | {"_id": match["id"]} for match in res["matches"]]
+
+#     # 2. Always fetch current post explicitly
+#     current = index.fetch(ids=[current_post_id])
+
+#     if current and current["vectors"]:
+#         current_doc = current["vectors"][current_post_id]["metadata"]
+#         current_doc["_id"] = current_post_id
+
+#         # Inject current post if missing
+#         if current_post_id not in [d["_id"] for d in docs]:
+#             docs.insert(0, current_doc)
+
+#     return docs
+
+def retrieve(query: str, current_post_id: str, category:str, top_k=5):
     embedding = generate_embedding(query)
 
     # 1. Semantic search
+    # res = index.query(
+    #     vector=embedding,
+    #     top_k=top_k,
+    #     include_metadata=True
+    # )
+
     res = index.query(
-        vector=embedding,
-        top_k=top_k,
-        include_metadata=True
+    vector=embedding,
+    top_k=top_k,
+    include_metadata=True,
+    filter={
+        "category": {"$eq": category}
+        }
     )
 
     docs = [match["metadata"] | {"_id": match["id"]} for match in res["matches"]]
@@ -68,8 +102,8 @@ def detect_youtube_links(posts):
                 })
     return videos
 
-def ask_ai(query: str, current_post_id: str, SYSTEM_PROMPT:str) :
-    docs = retrieve(query,current_post_id)
+def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
+    docs = retrieve(query,current_post_id, category)
     # print("Retrieved docs:", docs)
      
     rag_context = ""

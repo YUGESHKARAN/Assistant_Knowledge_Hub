@@ -17,6 +17,7 @@ load_dotenv()
 
 # client = Groq(api_key=GROQ_API_KEY)
 llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
+
 # llm = ChatOpenAI(model_name="gpt-4")
 
 # def retrieve(query: str,current_post_id:str, top_k=3):
@@ -56,16 +57,10 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
 #     return docs
 
-def retrieve(query: str, current_post_id: str, category:str, top_k=5):
+def retrieve(query: str, current_post_id: str, category:str, top_k=9):
     embedding = generate_embedding(query)
 
-    # 1. Semantic search
-    # res = index.query(
-    #     vector=embedding,
-    #     top_k=top_k,
-    #     include_metadata=True
-    # )
-
+    # 1. Semantic search using query and category
     res = index.query(
     vector=embedding,
     top_k=top_k,
@@ -80,13 +75,18 @@ def retrieve(query: str, current_post_id: str, category:str, top_k=5):
     # 2. Always fetch current post explicitly
     current = index.fetch(ids=[current_post_id])
 
+    # 3. insert and shift current_post to 1st position [0th index]
     if current and current["vectors"]:
         current_doc = current["vectors"][current_post_id]["metadata"]
         current_doc["_id"] = current_post_id
 
-        # Inject current post if missing
-        if current_post_id not in [d["_id"] for d in docs]:
-            docs.insert(0, current_doc)
+         # Remove current doc if already present
+        docs = [d for d in docs if d["_id"] != current_post_id]
+
+        # Insert at index 0
+        docs.insert(0, current_doc)
+    
+    
 
     return docs
 
@@ -104,8 +104,8 @@ def detect_youtube_links(posts):
 
 def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
     docs = retrieve(query,current_post_id, category)
-    # print("Retrieved docs:", docs)
-     
+    
+
     rag_context = ""
     
     for d in docs:

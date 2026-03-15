@@ -70,6 +70,7 @@ You are given:
 
   FOLLOW-UP SUGGESTIONS RULES:
   - Always generate 3 to 5 suggested questions.
+  - Always generate suggestion questions with a maximum word limit of 7.
   - Suggestions must:
     - Be relevant to the current topic
     - Help user learn deeper

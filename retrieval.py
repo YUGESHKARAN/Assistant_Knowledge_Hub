@@ -152,6 +152,6 @@ def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
         "SYSTEM_PROMPT":SYSTEM_PROMPT
     })
 
-    print("current_post_id:", current_post_id)
+    # print("current_post_id:", current_post_id)
 
     return response.dict()

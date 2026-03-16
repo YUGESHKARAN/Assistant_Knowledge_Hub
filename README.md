@@ -2,7 +2,7 @@
 
 A production-grade AI assistant built for a technical community learning platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines:
 
-- Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 521), and stores vectors + metadata in a Pinecone index.
+- Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate a JSON response via an LLM.
 
 This repository contains the core utilities for embedding, Pinecone integration, ingestion, retrieval, prompt templates and a minimal app interface.

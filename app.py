@@ -41,7 +41,7 @@ def ingest():
 @token_required
 def remove(post_id):
     delete_post(post_id)
-    return {"status": "deleted"}
+    return jsonify({"status": "deleted"})
 
 @app.route("/ask", methods=["POST"])
 @limiter.limit("20 per minute")

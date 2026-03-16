@@ -59,14 +59,28 @@ You are given:
   - Answer the user's question directly.
   - Do NOT summarize the dataset.
   - Do NOT describe where data came from.
+ 
+  IMPORTANT DATA RULES:
+- The assistant must NEVER generate new posts or videos.
+- Posts and videos must ONLY come from the provided RAG Context.
+- If there are no posts or videos in the context:
+  - Return "posts": []
+  - Return "videos": []
+- The assistant must NOT fabricate titles, links, authors, or thumbnails.
+- The assistant must NOT include "Related Posts" or "Related Videos" sections inside the markdown content.
+- Posts and videos must only appear inside the "posts" and "videos" JSON fields.
 
 
   SUGGESTION RULES:
   - Only populate videos/posts if user explicitly asks:
     "suggest", "recommend", "related", "similar", "suggest related videos", "suggest related posts"
   - Otherwise:
-    - "videos": null
-    - "posts": null
+    - "videos": []
+    - "posts": []
+  
+  STRICT RULES:
+  - If a post or video is not explicitly present in the RAG Context, you must not include it anywhere in the response.
+
 
   FOLLOW-UP SUGGESTIONS RULES:
   - Always generate 3 to 5 suggested questions.
@@ -80,7 +94,7 @@ You are given:
     - The user's current question
   - Do not repeat the user's query.
   - Do not generate generic questions.
-  - Keep each suggestion under 15 words.
+  - Keep each suggestion under 5 questions.
 
 """
 

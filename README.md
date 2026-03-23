@@ -1,6 +1,6 @@
 # Tech Community Assistant — Production-grade RAG Assistant
 
-A production-grade AI assistant built for a technical community learning platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines:
+A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines, supported through AGUI and A2UI protocols:
 
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate a JSON response via an LLM.
@@ -22,7 +22,7 @@ Contents
 
 1. Create a `.env` file with your OpenAI and Pinecone credentials (see “Environment variables”).
 2. Install dependencies:
-   - pip install -r utility/requirements.txt
+   - pip install -r requirements.txt
 3. Start the app or run the scripts:
    - Check `app.py` for HTTP endpoints (ingest / query) to test queries.
 4. Ingestion converts posts into 521-dimensional vectors using `text-embedding-3-small` and stores them in Pinecone along with metadata.
@@ -39,17 +39,10 @@ Contents
    - Storage: `pinecone_client.py` upserts embeddings with metadata into a Pinecone index (index config and namespace are set via env vars).
 
 2. Query / Retrieval
-   - Input: user question (and optional `current_post_id` or other filters).
+   - Input: user question (`query`, `current_post_id`, `catgory`).
    - Query embedding: same `text-embedding-3-small`.
    - Similarity search: Pinecone similarity search returns top-k matching chunks.
    - LLM response: LLM generates a structured JSON (see schema below). The response is returned to the user.
-
-ASCII overview:
-
-User Post(s) --> Ingestion (chunk -> embed -> Pinecone) <---> Pinecone Index
-                                                          ^
-                                                          |
-User Query --> Embed --> Pinecone similarity search --> Retrieve top-k chunks --> Build prompt (context + role) --> LLM -> JSON response
 
 ---
 
@@ -90,22 +83,34 @@ Note: The repo includes a `.env` template place; inspect `utility/config.py` for
    PINECONE_INDEX=assistant-index
    ```
 
-4. Ingest data (example):
-   - There is a script `ingestion.py` which performs ingestion; run it to index posts:
+4. Ingest data:
+   -  `ingestion.py` which performs ingestion:
+   -  Example ingest data format (designed for Tech Community platform):
+     ```json
+     {
+      "title": "",
+      "image": "",
+      "links": [],
+      "documents": [],
+      "description": "",
+      "category": "",
+      "_id": "",
+      "authorName": "",
+      "authoremail": "",
+      "profile": ""
+    }
      ```
-     python app.py
-     ```
-   - The script will read posts (from your source), embed them with `embedder.py` and upsert into Pinecone via `pinecone_client.py`.
+   - Ingested JSON data is embed using `embedder.py` and upsert into Pinecone via `pinecone_client.py`.
 
 5. Query / Run server:
    - `app.py` exposes a minimal HTTP interface. Inspect `app.py` for routes. Typical flow:
-     - POST /query  (body: {"query": "...", "current_post_id": "..."})
+     - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
      - POST /ingest (to ingest individual posts via HTTP) — if implemented
-   - Example (assumes a `/query` endpoint — confirm by reading `app.py`):
+   - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
      ```
-     curl -X POST http://localhost:8000/query \
+     curl -X POST http://localhost:5000/ask \
        -H "Content-Type: application/json" \
-       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5"}'
+       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
      ```
 
 ---
@@ -128,7 +133,8 @@ A typical query payload:
 ```json
 {
   "query": "summarize it, suggest post content",
-  "current_post_id": "689c1079f0093cfba6c981d5"
+  "current_post_id": "689c1079f0093cfba6c981d5",
+  "category":"GenAI"
 }
 ```
 This instructs the system to summarize the content related to `current_post_id` and propose suggested posts or content ideas.

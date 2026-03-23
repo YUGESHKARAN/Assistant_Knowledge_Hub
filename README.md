@@ -52,15 +52,10 @@ Create a `.env` file with at least the following keys:
 
 - OPENAI_API_KEY=your_openai_key
 - OPENAI_EMBED_MODEL=text-embedding-3-small
-- EMBEDDING_DIM=521
+- EMBEDDING_DIM=512
 - PINECONE_API_KEY=your_pinecone_key
-- PINECONE_ENV=your-pinecone-environment (e.g., us-west1-gcp)
+- PINECONE_ENV=(e.g., us-west1-gcp)
 - PINECONE_INDEX=your_index_name
-- PINECONE_NAMESPACE=optional_namespace
-- OPTIONAL: OPENAI_API_BASE, OPENAI_API_TYPE, etc. if using a proxy/enterprise deployment
-
-Note: The repo includes a `.env` template place; inspect `utility/config.py` for exact environment variable names expected by the code.
-
 ---
 
 ## Install & Run

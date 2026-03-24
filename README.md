@@ -18,6 +18,7 @@ Contents
 
 ---
 
+
 ## Brief (Quickstart)
 
 1. Create a `.env` file with your OpenAI and Pinecone credentials (see “Environment variables”).

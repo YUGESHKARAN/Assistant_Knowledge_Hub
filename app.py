@@ -28,6 +28,12 @@ CORS(app, resources={
     r"/ingest": {"origins": [frontend_url,"http://localhost:5173"]}
 })
 
+
+@app.route("/")
+@limiter.limit("20 per minute")
+def welcome():
+    return jsonify({"message":"Welcome to the Tech-Community-Assistant!"})
+
 @app.route("/ingest", methods=["POST"])
 @limiter.limit("20 per minute")
 @token_required

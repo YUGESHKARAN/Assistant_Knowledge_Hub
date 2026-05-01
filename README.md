@@ -51,14 +51,21 @@ Contents
 
 ## Environment variables
 
-Create a `.env` file with at least the following keys:
+Create a `.env` file with the following keys:
+```env
+# Model keys
+ GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
+ OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
 
-- OPENAI_API_KEY=your_openai_key
-- OPENAI_EMBED_MODEL=text-embedding-3-small
-- EMBEDDING_DIM=512
-- PINECONE_API_KEY=your_pinecone_key
-- PINECONE_ENV=(e.g., us-west1-gcp)
-- PINECONE_INDEX=your_index_name
+# Pinecone keys
+ PINECONE_API_KEY = your_pinecone_key
+ PINECONE_INDEX = your_index_name
+
+# Other keys - must for production
+ FRONTEND_END_URL = frontend_origin # prevent CSRF attack
+ MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
+ JWT_SECRET = your_jwt_auth_hashKey # secure authentication
+```
 ---
 
 ## Install & Run

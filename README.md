@@ -1,11 +1,19 @@
 # Tech Community Assistant — Production-grade RAG Assistant
 
-![Tech-Comm-App](/assets/tech-comm-assistant-2.png)
-
 A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines, supported through AGUI and A2UI protocols:
 
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate a JSON response via an LLM.
+---
+![Tech-Comm-App](/assets/tech-comm-assistant-2.png)
+
+---
+![Tech-Comm-App](/assets/tech-comm-assistant-3.png)
+
+---
+![Tech-Comm-App](/assets/tech-comm-assistant-4.png)
+
+---
 
 This repository contains the core utilities for embedding, Pinecone integration, ingestion, retrieval, prompt templates and a minimal app interface.
 

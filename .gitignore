@@ -3,3 +3,4 @@ tech_comm_assistant
 locustfile.py
 __pycache__/*
 __pycache__
+./__pycache__

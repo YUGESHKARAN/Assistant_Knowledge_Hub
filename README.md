@@ -136,9 +136,9 @@ Create a `.env` file with the following keys:
 ## Important files / modules
 
 - utility/config.py — environment & configuration
-- utility/embedder.py — OpenAI embedding calls
-- utility/pinecone_client.py — Pinecone index client, upsert, query helpers
 - utility/schema.py — expected data schema and types
+- embedder.py — OpenAI embedding calls
+- pinecone_client.py — Pinecone index client, upsert, query helpers
 - ingestion.py — ingestion pipeline runner
 - retrieval.py — query pipeline, retrieval + LLM prompting flow
 - app.py — application entry / HTTP API handlers

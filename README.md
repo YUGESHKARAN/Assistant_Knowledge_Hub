@@ -1,4 +1,7 @@
-## Tech Community Assistant — Production-grade RAG Assistant
+
+<div align="center">
+  <h2>Tech Community Assistant — Production-grade RAG Assistant</h2>
+</div>
 
 ![Tech-Comm-App](/assets/tech-comm-assistant.png)
 

@@ -1,6 +1,6 @@
 
 <div align="center">
-  <h2>Tech Community Assistant — Production-grade RAG Assistant</h2>
+  <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
 </div>
 
 ![License](https://img.shields.io/badge/license-MIT-brightgreen) 

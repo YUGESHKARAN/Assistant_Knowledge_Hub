@@ -3,6 +3,12 @@
   <h2>Tech Community Assistant — Production-grade RAG Assistant</h2>
 </div>
 
+![License](https://img.shields.io/badge/license-MIT-brightgreen) 
+![Python version](https://img.shields.io/badge/python-3.8%2B-blue) 
+![GitHub forks](https://img.shields.io/github/forks/YUGESHKARAN/Assistant_Knowledge_Hub) 
+![Last commit](https://img.shields.io/github/last-commit/YUGESHKARAN/Assistant_Knowledge_Hub) ![Issues](https://img.shields.io/github/issues/YUGESHKARAN/Assistant_Knowledge_Hub) 
+![Pull requests](https://img.shields.io/github/issues-pr/YUGESHKARAN/Assistant_Knowledge_Hub) 
+![Contributors](https://img.shields.io/github/contributors/YUGESHKARAN/Assistant_Knowledge_Hub)
 ![Tech-Comm-App](/assets/tech-comm-assistant.png)
 
 A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines, supported through AGUI and A2UI protocols:

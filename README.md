@@ -3,6 +3,8 @@
   <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
 </div>
 
+<div align="center">
+  
 ![License](https://img.shields.io/badge/license-MIT-brightgreen) 
 ![GitHub forks](https://img.shields.io/github/forks/YUGESHKARAN/Assistant_Knowledge_Hub) 
 ![Python version](https://img.shields.io/badge/python-3.8%2B-blue) 
@@ -12,6 +14,7 @@
 [![Closed Issues](https://img.shields.io/github/issues-closed/YUGESHKARAN/Assistant_Knowledge_Hub)](https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub/issues?q=is%3Aissue+is%3Aclosed)
 ![Pull requests](https://img.shields.io/github/issues-pr/YUGESHKARAN/Assistant_Knowledge_Hub) 
 [![Closed PRs](https://img.shields.io/github/issues-pr-closed/YUGESHKARAN/Assistant_Knowledge_Hub)](https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub/pulls?q=is%3Apr+is%3Aclosed)
+</div>
 
 ![Tech-Comm-App](/assets/tech-comm-assistant.png)
 

@@ -50,7 +50,7 @@ Contents
 
 ---
 
-## Architecture & Data Flow (Detailed)
+## Architecture & Data Flow
 
 1. Data Ingestion
    - Source: community posts (title, body, images, links, author, category, postId, profile, etc.).

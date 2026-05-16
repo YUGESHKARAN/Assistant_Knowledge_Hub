@@ -66,25 +66,6 @@ Contents
 
 ---
 
-## Environment variables
-
-Create a `.env` file with the following keys:
-```env
-# Model keys
- GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
- OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
-
-# Pinecone keys
- PINECONE_API_KEY = your_pinecone_key
- PINECONE_INDEX = your_index_name
-
-# Other keys - must for production
- FRONTEND_END_URL = frontend_origin # prevent CSRF attack
- MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
- JWT_SECRET = your_jwt_auth_hashKey # secure authentication
-```
----
-
 ## Install & Run
 
 1. Clone the repository:
@@ -99,13 +80,39 @@ Create a `.env` file with the following keys:
    ```
 
 3. Configure `.env` (at repo root or as expected by the code). Example:
-   ```
-   OPENAI_API_KEY=sk-...
-   PINECONE_API_KEY=pc-...
-   PINECONE_INDEX=assistant-index
-   ```
+  ```env
+  # Model keys
+   GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
+   OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
+  
+  # Pinecone keys
+   PINECONE_API_KEY = your_pinecone_key
+   PINECONE_INDEX = your_index_name
+  
+  # Other keys - must for production
+   FRONTEND_END_URL = frontend_origin # prevent CSRF attack
+   MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
+   JWT_SECRET = your_jwt_auth_hashKey # secure authentication
 
-4. Ingest data:
+  ```
+
+5. Run Command:
+   ```bash
+     python app.py
+   ```
+   default host: http://localhost:5000/
+
+6. Query Server:
+   - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
+   - POST /ingest (to ingest individual posts via HTTP) — if implemented
+   - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
+     ```bash
+     curl -X POST http://localhost:5000/ask \
+       -H "Content-Type: application/json" \
+       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
+     ```
+
+7. Ingest data:
    -  `ingestion.py` which performs ingestion:
    -  Example ingest data format (designed for Tech Community platform):
      ```json
@@ -123,17 +130,6 @@ Create a `.env` file with the following keys:
     }
      ```
    - Ingested JSON data is embed using `embedder.py` and upsert into Pinecone via `pinecone_client.py`.
-
-5. Query / Run server:
-   - `app.py` exposes a minimal HTTP interface. Inspect `app.py` for routes. Typical flow:
-     - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
-     - POST /ingest (to ingest individual posts via HTTP) — if implemented
-   - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
-     ```
-     curl -X POST http://localhost:5000/ask \
-       -H "Content-Type: application/json" \
-       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
-     ```
 
 ---
 

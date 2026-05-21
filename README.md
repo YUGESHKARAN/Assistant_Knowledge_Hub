@@ -1,4 +1,21 @@
-# Tech Community Assistant — Production-grade RAG Assistant
+
+<div align="center">
+  <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
+</div>
+
+<div align="left">
+  
+![License](https://img.shields.io/badge/license-MIT-brightgreen) 
+![GitHub forks](https://img.shields.io/github/forks/YUGESHKARAN/Assistant_Knowledge_Hub) 
+![Python version](https://img.shields.io/badge/python-3.8%2B-blue) 
+![Last commit](https://img.shields.io/github/last-commit/YUGESHKARAN/Assistant_Knowledge_Hub) 
+![Contributors](https://img.shields.io/github/contributors/YUGESHKARAN/Assistant_Knowledge_Hub)
+![Issues](https://img.shields.io/github/issues/YUGESHKARAN/Assistant_Knowledge_Hub) 
+[![Closed Issues](https://img.shields.io/github/issues-closed/YUGESHKARAN/Assistant_Knowledge_Hub)](https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub/issues?q=is%3Aissue+is%3Aclosed)
+![Pull requests](https://img.shields.io/github/issues-pr/YUGESHKARAN/Assistant_Knowledge_Hub) 
+[![Closed PRs](https://img.shields.io/github/issues-pr-closed/YUGESHKARAN/Assistant_Knowledge_Hub)](https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub/pulls?q=is%3Apr+is%3Aclosed)
+
+</div>
 
 ![Tech-Comm-App](/assets/tech-comm-assistant.png)
 
@@ -33,7 +50,7 @@ Contents
 
 ---
 
-## Architecture & Data Flow (Detailed)
+## Architecture & Data Flow
 
 1. Data Ingestion
    - Source: community posts (title, body, images, links, author, category, postId, profile, etc.).
@@ -47,25 +64,6 @@ Contents
    - Similarity search: Pinecone similarity search returns top-k matching chunks.
    - LLM response: LLM generates a structured JSON (see schema below). The response is returned to the user.
 
----
-
-## Environment variables
-
-Create a `.env` file with the following keys:
-```env
-# Model keys
- GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
- OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
-
-# Pinecone keys
- PINECONE_API_KEY = your_pinecone_key
- PINECONE_INDEX = your_index_name
-
-# Other keys - must for production
- FRONTEND_END_URL = frontend_origin # prevent CSRF attack
- MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
- JWT_SECRET = your_jwt_auth_hashKey # secure authentication
-```
 ---
 
 ## Install & Run
@@ -82,15 +80,41 @@ Create a `.env` file with the following keys:
    ```
 
 3. Configure `.env` (at repo root or as expected by the code). Example:
-   ```
-   OPENAI_API_KEY=sk-...
-   PINECONE_API_KEY=pc-...
-   PINECONE_INDEX=assistant-index
-   ```
+  ```env
+  # Model keys
+   GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
+   OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
+  
+  # Pinecone keys
+   PINECONE_API_KEY = your_pinecone_key
+   PINECONE_INDEX = your_index_name
+  
+  # Other keys - must for production
+   FRONTEND_END_URL = frontend_origin # prevent CSRF attack
+   MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
+   JWT_SECRET = your_jwt_auth_hashKey # secure authentication
 
-4. Ingest data:
+  ```
+
+5. Run Command:
+   ```bash
+     python app.py
+   ```
+   default host: http://localhost:5000/
+
+6. Query Server:
+   - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
+   - POST /ingest (to ingest individual posts via HTTP) — if implemented
+   - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
+     ```bash
+     curl -X POST http://localhost:5000/ask \
+       -H "Content-Type: application/json" \
+       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
+     ```
+
+7. Ingest data:
    -  `ingestion.py` which performs ingestion:
-   -  Example ingest data format (designed for Tech Community platform):
+   -  Ingest data format - designed for Tech Community platform:
      ```json
      {
       "title": "",
@@ -107,32 +131,21 @@ Create a `.env` file with the following keys:
      ```
    - Ingested JSON data is embed using `embedder.py` and upsert into Pinecone via `pinecone_client.py`.
 
-5. Query / Run server:
-   - `app.py` exposes a minimal HTTP interface. Inspect `app.py` for routes. Typical flow:
-     - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
-     - POST /ingest (to ingest individual posts via HTTP) — if implemented
-   - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
-     ```
-     curl -X POST http://localhost:5000/ask \
-       -H "Content-Type: application/json" \
-       -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
-     ```
-
 ---
 
 ## Important files / modules
 
 - utility/config.py — environment & configuration
-- utility/embedder.py — OpenAI embedding calls
-- utility/pinecone_client.py — Pinecone index client, upsert, query helpers
 - utility/schema.py — expected data schema and types
+- embedder.py — OpenAI embedding calls
+- pinecone_client.py — Pinecone index client, upsert, query helpers
 - ingestion.py — ingestion pipeline runner
 - retrieval.py — query pipeline, retrieval + LLM prompting flow
 - app.py — application entry / HTTP API handlers
 - requirements: requirements.txt
 
 ---
-## Example Query Input
+## Sample Query Input
 
 A typical query payload:
 ```json
@@ -150,7 +163,7 @@ This instructs the system to summarize the content related to `current_post_id` 
 
 The system produces a JSON response designed for clients that render posts, suggestions, and optional videos. Example response:
 
-Example (sample response produced by the LLM):
+Sample response produced by the LLM:
 ```json
 {
   "content": "## Evaluating LLMs using LangSmith\n\nJust wrapped up a comprehensive evaluation ...",
@@ -184,7 +197,7 @@ Field explanations:
 - content: Markdown-formatted summary or explanation generated by the LLM.
 - posts: Array of suggested or related posts (each contains metadata such as title, author, postId, images, links).
 - suggestions: short follow-up questions/ideas for posts or further reading.
-- type: high-level response classification (e.g., "post_suggestions").
+- type: text, text_video, post_suggestions.
 - videos: optional video list or null.
 
 ---
@@ -209,8 +222,7 @@ Field explanations:
 Contributions and improvements are welcome. Follow these steps:
 1. Fork the repo
 2. Create a new branch (feature/your-change)
-3. Run tests (if present) and linters
-4. Open a PR with a clear description of changes
+3. Open a PR with a clear description of changes
 
 Please keep secrets and API keys out of PRs.
 

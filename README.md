@@ -1,4 +1,3 @@
-
 <div align="center">
   <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
 </div>
@@ -19,10 +18,10 @@
 
 ![Tech-Comm-App](/assets/tech-comm-assistant.png)
 
-A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with separate ingestion and query pipelines, supported through AGUI and A2UI protocols:
+A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with production-grade RAG patterns.
 
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
-- Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate a JSON response via an LLM.
+- Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate LLM responses.
 
 This repository contains the core utilities for embedding, Pinecone integration, ingestion, retrieval, prompt templates and a minimal app interface.
 
@@ -40,7 +39,7 @@ Contents
 
 ## Brief (Quickstart)
 
-1. Create a `.env` file with your OpenAI and Pinecone credentials (see “Environment variables”).
+1. Create a `.env` file with your OpenAI and Pinecone credentials (see "Environment variables").
 2. Install dependencies:
    - pip install -r requirements.txt
 3. Start the app or run the scripts:
@@ -55,11 +54,11 @@ Contents
 1. Data Ingestion
    - Source: community posts (title, body, images, links, author, category, postId, profile, etc.).
    - Text is chunked / normalized (see `schema.py` for structure).
-   - Embedding: `embedder.py` calls OpenAI’s `text-embedding-3-small` (embedding dim = 521).
+   - Embedding: `embedder.py` calls OpenAI's `text-embedding-3-small` (embedding dim = 512).
    - Storage: `pinecone_client.py` upserts embeddings with metadata into a Pinecone index (index config and namespace are set via env vars).
 
 2. Query / Retrieval
-   - Input: user question (`query`, `current_post_id`, `catgory`).
+   - Input: user question (`query`, `current_post_id`, `category`).
    - Query embedding: same `text-embedding-3-small`.
    - Similarity search: Pinecone similarity search returns top-k matching chunks.
    - LLM response: LLM generates a structured JSON (see schema below). The response is returned to the user.
@@ -80,29 +79,28 @@ Contents
    ```
 
 3. Configure `.env` (at repo root or as expected by the code). Example:
-  ```env
-  # Model keys
+   ```env
+   # Model keys
    GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
    OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
-  
-  # Pinecone keys
+   
+   # Pinecone keys
    PINECONE_API_KEY = your_pinecone_key
    PINECONE_INDEX = your_index_name
-  
-  # Other keys - must for production
+   
+   # Other keys - must for production
    FRONTEND_END_URL = frontend_origin # prevent CSRF attack
    MAX_QUERY_LENGTH = 800             # input max-context (query guardrail)
    JWT_SECRET = your_jwt_auth_hashKey # secure authentication
+   ```
 
-  ```
-
-5. Run Command:
+4. Run Command:
    ```bash
-     python app.py
+   python app.py
    ```
    default host: http://localhost:5000/
 
-6. Query Server:
+5. Query Server:
    - POST /ask  (body: {"query": "...", "current_post_id": "...", "category":"..."})
    - POST /ingest (to ingest individual posts via HTTP) — if implemented
    - Example (assumes a `/ask` endpoint — confirm by reading `app.py`):
@@ -112,22 +110,22 @@ Contents
        -d '{"query":"summarize it, suggest post content", "current_post_id":"689c1079f0093cfba6c981d5", "category":"GenAI"}'
      ```
 
-7. Ingest data:
+6. Ingest data:
    -  `ingestion.py` which performs ingestion:
    -  Ingest data format - designed for Tech Community platform:
      ```json
      {
-      "title": "",
-      "image": "",
-      "links": [],
-      "documents": [],
-      "description": "",
-      "category": "",
-      "_id": "",
-      "authorName": "",
-      "authoremail": "",
-      "profile": ""
-    }
+       "title": "",
+       "image": "",
+       "links": [],
+       "documents": [],
+       "description": "",
+       "category": "",
+       "_id": "",
+       "authorName": "",
+       "authoremail": "",
+       "profile": ""
+     }
      ```
    - Ingested JSON data is embed using `embedder.py` and upsert into Pinecone via `pinecone_client.py`.
 
@@ -145,6 +143,7 @@ Contents
 - requirements: requirements.txt
 
 ---
+
 ## Sample Query Input
 
 A typical query payload:
@@ -202,20 +201,17 @@ Field explanations:
 
 ---
 
-
-
 ## Implementation Notes & Best Practices
 
 - Embedding model: `text-embedding-3-small` — ensure you use the same encoder for both ingestion and querying to keep vector spaces consistent.
-- Embedding dimension: 521. When creating Pinecone index, make sure the vector dimension is set accordingly.
+- Embedding dimension: 512. When creating Pinecone index, make sure the vector dimension is set accordingly.
 - Upsert metadata: store `postId`, `authorEmail`, `authorName`, `category`, `title`, `url`/`links`, chunk id / offset. Metadata ensures you can rehydrate results into structured post objects.
 - Top-k retrieval: tune `k` (default often between 3–10) depending on chunk size and retrieval quality.
-- Prompting: combine retrieved chunks with system & role prompts . Keep prompts deterministic and include instructions for JSON-only output if you want strict machine-parsable results.
+- Prompting: combine retrieved chunks with system & role prompts. Keep prompts deterministic and include instructions for JSON-only output if you want strict machine-parsable results.
 - Chunking & overlap: choose chunk size & overlap to balance context quality vs. retrieval noise.
 - Pinecone namespaces: use namespaces to separate environments or tenants.
 
 ---
-
 
 ## Contributing
 

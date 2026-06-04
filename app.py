@@ -24,8 +24,8 @@ MAX_QUERY_LENGTH = os.getenv('MAX_QUERY_LENGTH')
 
 
 CORS(app, resources={
-    r"/ask": {"origins": [frontend_url,"http://localhost:5173"]},
-    r"/ingest": {"origins": [frontend_url,"http://localhost:5173"]}
+    r"/ask": {"origins": [frontend_url, "https://blog-frontend-teal-ten.vercel.app" ,"http://localhost:5173"]},
+    r"/ingest": {"origins": [frontend_url, "https://blog-frontend-teal-ten.vercel.app", "http://localhost:5173"]}
 })
 
 

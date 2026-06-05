@@ -1,6 +1,6 @@
 <div
   align="center">
-  <img src="assets/bytesbase_assistant_logo_icon.png" width="80" height="80" alt="BytesBase Assistant"> 
+  <img src="assets/bytesbase_assistant_logo_icon.png" width="100" height="100" alt="BytesBase Assistant"> 
 </div>
 
 <div align="center">

@@ -21,7 +21,7 @@
 
 </div>
 
-![Tech-Comm-App](/assets/tech-comm-assistant.png)
+![Tech-Comm-App](/assets/bytesbase_assistant.png)
 
 A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with production-grade RAG patterns.
 

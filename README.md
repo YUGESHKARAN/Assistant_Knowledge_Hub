@@ -1,3 +1,8 @@
+<div
+  align="center">
+  <img src="assets/bytesbase_assistant_logo.png" width="100" height="100" alt="BytesBase Assistant"> 
+</div>
+
 <div align="center">
   <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
 </div>

@@ -86,7 +86,7 @@ Contents
 3. Configure `.env` (at repo root or as expected by the code). Example:
    ```env
    # Model keys
-   GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
+   GROQ_API_KEY = your_llm_model_key # here using the model openai/gpt-oss-120b
    OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
    
    # Pinecone keys

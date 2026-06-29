@@ -1,6 +1,7 @@
 langchain
 langchain_groq
 langchain_core
+langsmith
 
 python-dotenv
 pinecone

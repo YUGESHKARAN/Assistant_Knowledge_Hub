@@ -9,9 +9,9 @@ from utility.prompt_injection_filtering import is_prompt_injection
 from utility.prompts.system import SYSTEM_PROMPT
 from utility.config import build_response
 from middleware.auth_token import token_required
-
+from langsmith import Client
 app = Flask(__name__)
-
+client = Client()
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -97,4 +97,4 @@ def ask():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)

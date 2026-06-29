@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
-  <h3>Tech Community Assistant — Production-grade RAG Assistant</h3>
+  <h3>Bytes Base Assistant — Production-grade RAG Assistant</h3>
 </div>
 
 <div align="left">
@@ -23,7 +23,7 @@
 
 ![Tech-Comm-App](/assets/bytesbase_assistant.png)
 
-A production grade AI assistant built for a [Tech-Community](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with production-grade RAG patterns.
+A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This project implements a Retrieval-Augmented Generation (RAG) architecture with production-grade RAG patterns.
 
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate LLM responses.
@@ -86,7 +86,7 @@ Contents
 3. Configure `.env` (at repo root or as expected by the code). Example:
    ```env
    # Model keys
-   GROQ_API_KEY = your_llm_model_key # here using the model meta-llama/Llama-4-Scout-17B-16E-Instruct
+   GROQ_API_KEY = your_llm_model_key # here using the model openai/gpt-oss-120b
    OPENAI_API_KEY = your_openai_key # embed model api key, here using text-embedding-3-small
    
    # Pinecone keys

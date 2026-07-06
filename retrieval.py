@@ -57,7 +57,7 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
 #     return docs
 
-def retrieve(query: str, current_post_id: str, category:str, top_k=5):
+def retrieve(query: str, current_post_id: str, category:str, top_k=4):
     embedding = generate_embedding(query)
 
     # 1. Semantic search using query and category
@@ -103,7 +103,7 @@ def detect_youtube_links(posts):
     return videos
 
 
-MAX_DESCRIPTION_LENGTH = 2000
+MAX_DESCRIPTION_LENGTH = 1000
 
 def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
     docs = retrieve(query,current_post_id, category)

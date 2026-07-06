@@ -57,7 +57,7 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
 #     return docs
 
-def retrieve(query: str, current_post_id: str, category:str, top_k=4):
+def retrieve(query: str, current_post_id: str, category:str, top_k=3):
     embedding = generate_embedding(query)
 
     # 1. Semantic search using query and category

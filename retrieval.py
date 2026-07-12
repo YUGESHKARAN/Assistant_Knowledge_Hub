@@ -15,10 +15,9 @@ format_instructions = parser.get_format_instructions()
 from dotenv import load_dotenv
 load_dotenv()
 
-# client = Groq(api_key=GROQ_API_KEY)
+
 llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
-# llm = ChatOpenAI(model_name="gpt-4")
 
 # def retrieve(query: str,current_post_id:str, top_k=3):
 #     embedding = generate_embedding(query)
@@ -57,7 +56,7 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
 
 #     return docs
 
-def retrieve(query: str, current_post_id: str, category:str, top_k=5):
+def retrieve(query: str, current_post_id: str, category:str, top_k=3):
     embedding = generate_embedding(query)
 
     # 1. Semantic search using query and category
@@ -85,8 +84,6 @@ def retrieve(query: str, current_post_id: str, category:str, top_k=5):
 
         # Insert at index 0
         docs.insert(0, current_doc)
-    
-    
 
     return docs
 
@@ -116,7 +113,9 @@ def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
         # limit description length
         if len(description) > MAX_DESCRIPTION_LENGTH:
             description = description[:MAX_DESCRIPTION_LENGTH] + "..."
-        
+
+        # Documents: {d.get('documents', [])}
+
         rag_context += f"""
         Title: {d['title']}
         Description: {description}
@@ -125,7 +124,6 @@ def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
         Email: {d['authoremail']}
         PostId: {d['_id']}
         Category: {d['category']}
-        Documents: {d.get('documents', [])}
         Profile: {d['profile']}
         Image: {d['image']}
         """
@@ -160,6 +158,7 @@ def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
         "SYSTEM_PROMPT":SYSTEM_PROMPT
     })
 
+    # print("response", response.dict())
     # print("current_post_id:", current_post_id)
 
     return response.dict()

@@ -43,6 +43,7 @@ class AIResponse(BaseModel):
         description="Present only when type=post_suggestions"
     )
 
-    suggestions: Optional[List[str]] = Field(
+    suggestions: List[str] = Field(
+        default_factory=list,
         description="3-5 follow-up questions user might ask next"
     )

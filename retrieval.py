@@ -103,7 +103,7 @@ def detect_youtube_links(posts):
     return videos
 
 
-MAX_DESCRIPTION_LENGTH = 1500
+MAX_DESCRIPTION_LENGTH = 1000
 
 def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
     docs = retrieve(query,current_post_id, category)

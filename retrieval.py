@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL)
+llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL, temperature=0.4)
 
 
 # def retrieve(query: str,current_post_id:str, top_k=3):
@@ -100,7 +100,7 @@ def detect_youtube_links(posts):
     return videos
 
 
-MAX_DESCRIPTION_LENGTH = 1000
+MAX_DESCRIPTION_LENGTH = 1500
 
 def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
     docs = retrieve(query,current_post_id, category)

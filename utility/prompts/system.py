@@ -87,11 +87,11 @@ You are given:
   - Always generate suggestion questions with a maximum word limit of 7.
   - Suggestions must:
     - Be relevant to the current topic
+    - Contains the answer for the suggested questions. 
     - Help user learn deeper
     - Be phrased as natural questions
-  - Use both:
+  - Use:
     - The current post topic
-    - The user's current question
   - Do not repeat the user's query.
   - Do not generate generic questions.
   - Keep each suggestion under 5 questions.

@@ -27,7 +27,7 @@ A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate LLM responses.
 
-This repository contains the core utilities for embedding, Pinecone integration, ingestion, retrieval, prompt templates and a minimal app interface.
+This repository contains the core utilities for prompt templates, embedding, Pinecone integration, ingestion and retrieval pipelines.
 
 Contents
 - Brief overview (quickstart)

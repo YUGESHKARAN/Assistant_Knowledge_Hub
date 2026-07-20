@@ -11,6 +11,7 @@
   
 ![License](https://img.shields.io/badge/license-MIT-brightgreen) 
 ![Python version](https://img.shields.io/badge/python-3.8%2B-blue) 
+![GitHub forks](https://img.shields.io/github/forks/YUGESHKARAN/Assistant_Knowledge_Hub)
 ![Last commit](https://img.shields.io/github/last-commit/YUGESHKARAN/Assistant_Knowledge_Hub) 
 ![Contributors](https://img.shields.io/github/contributors/YUGESHKARAN/Assistant_Knowledge_Hub)
 [![Issues](https://img.shields.io/github/issues/YUGESHKARAN/Assistant_Knowledge_Hub)](https://github.com/YUGESHKARAN/Assistant_Knowledge_Hub/issues)

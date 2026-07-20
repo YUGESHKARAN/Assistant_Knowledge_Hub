@@ -4,13 +4,12 @@
 </div>
 
 <div align="center">
-  <h3>Bytes Base Assistant — Production-grade RAG System</h3>
+  <h3>Bytes Base Assistant — Production grade RAG System</h3>
 </div>
 
 <div align="left">
   
 ![License](https://img.shields.io/badge/license-MIT-brightgreen) 
-![GitHub forks](https://img.shields.io/github/forks/YUGESHKARAN/Assistant_Knowledge_Hub)
 ![Python version](https://img.shields.io/badge/python-3.8%2B-blue) 
 ![Last commit](https://img.shields.io/github/last-commit/YUGESHKARAN/Assistant_Knowledge_Hub) 
 ![Contributors](https://img.shields.io/github/contributors/YUGESHKARAN/Assistant_Knowledge_Hub)
@@ -23,7 +22,7 @@
 
 ![Tech-Comm-App](/assets/bytesbase_assistant.png)
 
-A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This microservice implements a Retrieval-Augmented Generation (RAG) architecture with production-grade RAG patterns.
+A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This microservice implements a Retrieval-Augmented Generation (RAG) architecture supported through AGUI and A2UI protocols.
 
 - Ingestion pipeline: ingests user posts, converts them to vector embeddings using OpenAI's `text-embedding-3-small` (dim: 512), and stores vectors + metadata in a Pinecone index.
 - Query pipeline: converts user questions to embeddings, performs similarity search against Pinecone to retrieve top-k relevant chunks, and uses those chunks as context (plus role-specified prompts) to generate LLM responses.

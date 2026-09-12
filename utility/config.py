@@ -12,10 +12,15 @@ EMBED_MODEL = "text-embedding-3-small"
 # LLM_MODEL = "llama-3.1-8b-instant"
 # LLM_MODEL = "meta-llama/llama-4-maverick-17b-128e-instruct"
 # LLM_MODEL = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
-LLM_MODEL = "openai/gpt-oss-120b"
+
 # LLM_MODEL = "llama-3.3-70b-versatile"
 # LLM_MODEL = "openai/gpt-oss-20b"
 
+
+LLM_MODEL = "openai/gpt-oss-120b"
+# LLM_MODEL = "sarvam-30b"
+
+# SARVAM_API_KEY = os.getenv('SARVAM_API_KEY')  # LLM_MODEL e.g. "sarvam-30b"
 
 def build_response(
     content: str,

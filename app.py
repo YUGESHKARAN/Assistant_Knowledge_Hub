@@ -5,6 +5,7 @@ from flask_limiter.util import get_remote_address
 from flask_cors import cross_origin, CORS
 from ingestion import upsert_post, delete_post
 from retrieval import ask_ai    
+# from test_retrieval import ask_ai    
 from utility.prompt_injection_filtering import is_prompt_injection
 from utility.prompts.system import SYSTEM_PROMPT
 from utility.config import build_response
@@ -15,11 +16,12 @@ client = Client()
 limiter = Limiter(
     get_remote_address,
     app=app,
+    storage_uri=os.getenv("REDIS_URL"),
     default_limits=["100 per hour"]
 )
 
 frontend_url = os.getenv('FRONTEND_END_URL')
-MAX_QUERY_LENGTH = os.getenv('MAX_QUERY_LENGTH')
+MAX_QUERY_LENGTH = os.getenv('MAX_QUERY_LENGTH', 800)
 # CORS(app, resources={r"/ask": {"origins": "*"}})
 
 
@@ -91,6 +93,7 @@ def ask():
     
     current_post_id = request.json.get("current_post_id", "")
     result = ask_ai(query,current_post_id, category, SYSTEM_PROMPT)
+    # result = ask_ai(query,current_post_id, category, SYSTEM_PROMPT, target_language='English')
     return jsonify(result), 200
 
 

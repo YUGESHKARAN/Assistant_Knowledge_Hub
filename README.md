@@ -20,8 +20,17 @@
 
 </div>
 
-<video src="./assets/videos/assistant_demo.mp4" autoplay loop muted playsinline width="640"></video>
-<video src="./assets/videos/assistant_demo.mp4" autoplay loop muted playsinline width="640"></video>
+
+<div align="center">
+  <video
+    src="https://github.com/user-attachments/assets/64d7cdf1-6078-44e9-a743-47dc11a60b3f"
+    autoplay
+    loop
+    muted
+    playsinline
+    width="100%">
+  </video>
+</div>
 
 A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This microservice implements a Retrieval-Augmented Generation (RAG) architecture supported through AGUI and A2UI protocols.
 

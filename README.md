@@ -21,7 +21,7 @@
 
 </div>
 
-![Tech-Comm-App](/assets/bytesbase_assistant.png)
+<video src="/assets/vides/assistant_demo.mp4" controls width="640"></video>
 
 A production grade AI assistant [@BytesBase](https://github.com/YUGESHKARAN/Tech-Community-App) platform. This microservice implements a Retrieval-Augmented Generation (RAG) architecture supported through AGUI and A2UI protocols.
 

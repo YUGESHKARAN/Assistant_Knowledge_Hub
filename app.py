@@ -41,7 +41,11 @@ def welcome():
 @token_required
 def ingest():
     post = request.json
-    upsert_post(post)
+    tenantId = request.user['tenantId']
+    try:
+        upsert_post(post, tenantId)
+    except PermissionError:
+        return jsonify({"error": "Post belongs to a different tenant"}), 403
     return {"status": "indexed"}
 
 @app.route("/delete/<post_id>", methods=["DELETE"])

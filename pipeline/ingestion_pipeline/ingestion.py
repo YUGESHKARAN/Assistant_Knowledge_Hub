@@ -55,16 +55,24 @@ def clean_metadata(post):
     }
 
 
-def upsert_post(post: dict):
+def upsert_post(post: dict, tenantId: str):
     filtered = {k: post[k] for k in FIELDS if k in post}
+    filtered["tenantId"] = tenantId
+
+    post_id = filtered["_id"]
+    existing = index.fetch(ids=[post_id])["vectors"].get(post_id)
+    existing_metadata = (existing.get("metadata") or {}) if existing else {}
+    if existing and existing_metadata.get("tenantId") != tenantId:
+        raise PermissionError(f"Post {post_id} belongs to a different tenant")
+
     text = build_text(filtered)
 
     embedding = generate_embedding(text)
     metadata = clean_metadata(filtered)
-    print("metadata", metadata)
+    # print("metadata", metadata)
 
     index.upsert(vectors=[{
-        "id": filtered["_id"],
+        "id": post_id,
         "values": embedding,
         "metadata": metadata
     }])

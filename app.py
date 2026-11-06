@@ -3,8 +3,8 @@ from flask import Flask, request, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import cross_origin, CORS
-from ingestion import upsert_post, delete_post
-from retrieval import ask_ai    
+from pipeline.ingestion_pipeline.ingestion import upsert_post, delete_post
+from pipeline.retrieval_pipeline.retrieval import ask_ai    
 # from test_retrieval import ask_ai    
 from utility.prompt_injection_filtering import is_prompt_injection
 from utility.prompts.system import SYSTEM_PROMPT
@@ -48,7 +48,8 @@ def ingest():
 @limiter.limit("20 per minute")
 @token_required
 def remove(post_id):
-    delete_post(post_id)
+    tenantId = request.user['tenantId']
+    delete_post(tenantId, post_id)
     return jsonify({"status": "deleted"})
 
 @app.route("/ask", methods=["POST"])
@@ -92,7 +93,8 @@ def ask():
     ), 400
     
     current_post_id = request.json.get("current_post_id", "")
-    result = ask_ai(query,current_post_id, category, SYSTEM_PROMPT)
+    tenantId = request.user['tenantId']
+    result = ask_ai(query,current_post_id, category,tenantId, SYSTEM_PROMPT)
     # result = ask_ai(query,current_post_id, category, SYSTEM_PROMPT, target_language='English')
     return jsonify(result), 200
 

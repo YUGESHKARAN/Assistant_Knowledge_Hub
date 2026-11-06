@@ -1,7 +1,7 @@
-from pinecone_client import index
-from embedder import generate_embedding
+from utility.pinecone_client import index
+from pipeline.ingestion_pipeline.embedder import generate_embedding
 
-FIELDS = ["title", "image", "description", "category",
+FIELDS = ["title", "tenantId",  "image", "description", "category",
           "_id", "links", "documents", "authorName", "profile", "authorEmail"]
 
 def build_text(post):
@@ -34,6 +34,7 @@ def clean_metadata(post):
 
     return {
         "title": post.get("title", ""),
+        "tenantId": post.get("tenantId", ""),
         "image": post.get("image", ""),
         "description": post.get("description", ""),
         "category": post.get("category", ""),
@@ -60,6 +61,7 @@ def upsert_post(post: dict):
 
     embedding = generate_embedding(text)
     metadata = clean_metadata(filtered)
+    print("metadata", metadata)
 
     index.upsert(vectors=[{
         "id": filtered["_id"],
@@ -67,5 +69,10 @@ def upsert_post(post: dict):
         "metadata": metadata
     }])
 
-def delete_post(post_id: str):
-    index.delete(ids=[post_id])
+def delete_post(tenantId:str, post_id: str):
+    print("deleting postId", post_id)
+    print("deleting post_id", post_id)
+    index.delete(filter={
+        "_id": {"$eq": post_id},
+        "tenantId": {"$eq": tenantId}
+    })

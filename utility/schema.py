@@ -45,5 +45,5 @@ class AIResponse(BaseModel):
 
     suggestions: List[str] = Field(
         default_factory=list,
-        description="3-5 follow-up questions user might ask next"
+        description="3-5 follow-up questions only from the RAG context."
     )

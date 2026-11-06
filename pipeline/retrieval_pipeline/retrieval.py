@@ -1,5 +1,5 @@
-from pinecone_client import index
-from embedder import generate_embedding
+from utility.pinecone_client import index
+from pipeline.ingestion_pipeline.embedder import generate_embedding
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 # from langchain_core.output_parsers import JsonOutputParser
@@ -56,7 +56,7 @@ llm = ChatGroq(api_key=GROQ_API_KEY, model=LLM_MODEL, temperature=0.4)
 
 #     return docs
 
-def retrieve(query: str, current_post_id: str, category:str, top_k=3):
+def retrieve(query: str, tenantId:str, current_post_id: str, category:str, top_k=3):
     embedding = generate_embedding(query)
 
     # 1. Semantic search using query and category
@@ -65,7 +65,8 @@ def retrieve(query: str, current_post_id: str, category:str, top_k=3):
     top_k=top_k,
     include_metadata=True,
     filter={
-        "category": {"$eq": category}
+        "category": {"$eq": category},
+        "tenantId":{"$eq":tenantId}
         }
     )
 
@@ -75,7 +76,11 @@ def retrieve(query: str, current_post_id: str, category:str, top_k=3):
     current = index.fetch(ids=[current_post_id])
 
     # 3. insert and shift current_post to 1st position [0th index]
-    if current and current["vectors"]:
+    if (
+        current
+        and current["vectors"]
+        and current["vectors"][current_post_id]["metadata"].get("tenantId") == tenantId
+    ):
         current_doc = current["vectors"][current_post_id]["metadata"]
         current_doc["_id"] = current_post_id
 
@@ -87,23 +92,23 @@ def retrieve(query: str, current_post_id: str, category:str, top_k=3):
 
     return docs
 
-def detect_youtube_links(posts):
-    videos = []
-    for p in posts:
-        for link in p.get("links", []):
-            url = link.get("url", "")
-            if "youtube.com" in url or "youtu.be" in url:
-                videos.append({
-                    "title": link.get("title", p["title"]),
-                    "url": url
-                })
-    return videos
+# def detect_youtube_links(posts):
+#     videos = []
+#     for p in posts:
+#         for link in p.get("links", []):
+#             url = link.get("url", "")
+#             if "youtube.com" in url or "youtu.be" in url:
+#                 videos.append({
+#                     "title": link.get("title", p["title"]),
+#                     "url": url
+#                 })
+#     return videos
 
 
 MAX_DESCRIPTION_LENGTH = 1500
 
-def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
-    docs = retrieve(query,current_post_id, category)
+def ask_ai(query: str, current_post_id: str, category:str,tenantId:str, SYSTEM_PROMPT:str) :
+    docs = retrieve(query, tenantId, current_post_id, category)
 
     rag_context = ""
     
@@ -160,5 +165,6 @@ def ask_ai(query: str, current_post_id: str, category:str, SYSTEM_PROMPT:str) :
 
     # print("response", response.dict())
     # print("current_post_id:", current_post_id)
+    print("tenantId:", tenantId)
 
     return response.dict()
